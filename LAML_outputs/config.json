@@ -1,0 +1,61 @@
+{
+  "IMAGE_SIZE": 512,
+  "DISEASE_NAMES": [
+    "N",
+    "D",
+    "G",
+    "C",
+    "A",
+    "H",
+    "M",
+    "O"
+  ],
+  "DISEASE_FULL": {
+    "N": "Normal",
+    "D": "Diabetic Retinopathy",
+    "G": "Glaucoma",
+    "C": "Cataract",
+    "A": "Age-related MD",
+    "H": "Hypertension",
+    "M": "Myopia",
+    "O": "Other"
+  },
+  "LESION_VOCAB": [
+    "diabetic retinopathy",
+    "macular degeneration",
+    "glaucoma",
+    "cataract",
+    "hypertensive retinopathy",
+    "myopia",
+    "drusen",
+    "hemorrhage",
+    "exudate",
+    "cotton wool spot",
+    "neovascularization",
+    "disc cupping",
+    "retinal detachment",
+    "laser photocoagulation",
+    "macular hole",
+    "epiretinal membrane",
+    "vitreous opacity",
+    "branch retinal vein occlusion",
+    "central retinal vein occlusion",
+    "retinitis pigmentosa",
+    "morning glory",
+    "coloboma",
+    "tessellation",
+    "pathological myopia",
+    "macular edema"
+  ],
+  "LAMBDA_LESION": 0.3,
+  "optimal_thresholds": {
+    "N": 0.43000000000000005,
+    "D": 0.5500000000000002,
+    "G": 0.5500000000000002,
+    "C": 0.8500000000000002,
+    "A": 0.49000000000000005,
+    "H": 0.4700000000000001,
+    "M": 0.43000000000000005,
+    "O": 0.6300000000000001
+  }
+}

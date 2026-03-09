@@ -1,0 +1,12 @@
+venv/
+pdfs/
+*.keras
+*.h5
+*.npy
+Testing_Images/
+create_dockerfile.sh
+gitrun.sh
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
