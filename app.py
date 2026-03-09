@@ -217,7 +217,8 @@ DISEASE_FULL = {
 DISEASE_NAMES = ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
 
 # Canonical output directory — all notebook artifacts land here
-OUTPUTS_DIR = 'LAML_outputs'
+import os
+OUTPUTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'LAML_outputs')
 
 def out(fname):
     """Return path inside outputs/ dir, also checks current dir as fallback."""
