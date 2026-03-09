@@ -218,7 +218,7 @@ DISEASE_NAMES = ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
 
 # Canonical output directory — all notebook artifacts land here
 import os
-OUTPUTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'LAML_outputs')
+OUTPUTS_DIR = 'LAML_outputs'
 
 def out(fname):
     """Return path inside outputs/ dir, also checks current dir as fallback."""
@@ -240,7 +240,7 @@ def load_model_and_config():
     try:
         import tensorflow as tf
 
-        model_path = out('D:\mini_project-3-2\main\LAML_outputs\LAML_final.keras')
+        model_path = out('LAML_final.keras')
         if not model_path:
             return None, {}, {}, "LAML_final.keras not found"
 
