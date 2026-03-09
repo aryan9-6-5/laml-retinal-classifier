@@ -439,7 +439,7 @@ with tab_infer:
 
             with col_img:
                 st.markdown('<div class="slabel">Input Image</div>', unsafe_allow_html=True)
-                st.image(img_np, use_column_width=True, clamp=True)
+                st.image(img_np, width='stretch', clamp=True)
 
             with col_res:
                 st.markdown('<div class="slabel">Disease Probabilities</div>',
@@ -506,7 +506,7 @@ with tab_infer:
                             'font-size:0.68rem;color:#3d4f6b;text-align:center;'
                             'text-transform:uppercase;letter-spacing:0.1em;">Original</p>',
                             unsafe_allow_html=True)
-                st.image(img_np, use_column_width=True, clamp=True)
+                st.image(img_np, width='stretch', clamp=True)
 
             for ci, (cls_i, prob_v) in enumerate(show_classes):
                 hm = gradcam(model, img_np, cls_i)
@@ -519,7 +519,7 @@ with tab_infer:
                         unsafe_allow_html=True
                     )
                     if hm is not None:
-                        st.image(overlay_heatmap(img_np, hm), use_column_width=True, clamp=True)
+                        st.image(overlay_heatmap(img_np, hm), width='stretch', clamp=True)
                     else:
                         st.caption("Grad-CAM unavailable")
 
@@ -535,7 +535,7 @@ with tab_infer:
                                   for i in range(len(DISEASE_NAMES))],
                     'Predicted': ['✓' if b else '' for b in binary],
                 })
-                st.dataframe(df, use_container_width=True, hide_index=True)
+                st.dataframe(df, width='stretch', hide_index=True)
 
     elif uploaded and model is None:
         st.warning("Model not loaded — see status bar above.")
@@ -569,7 +569,7 @@ with tab_perf:
         st.dataframe(
             auc_df.style.format(precision=4)
                         .background_gradient(cmap='Blues', subset=auc_df.select_dtypes('number').columns),
-            use_container_width=True, hide_index=True
+            width='stretch', hide_index=True
         )
     else:
         st.caption("auc_scores_balanced.csv not found in outputs/")
@@ -582,7 +582,7 @@ with tab_perf:
         abl_df = pd.read_csv(abl_path)
         st.dataframe(
             abl_df.style.format(precision=4),
-            use_container_width=True, hide_index=True
+            width='stretch', hide_index=True
         )
     else:
         st.caption("ablation_results.csv not found in outputs/")
@@ -591,7 +591,7 @@ with tab_perf:
     img_train = load_png('training_history.png')
     if img_train:
         st.markdown("**Training History (Phase 1 + Phase 2)**")
-        st.image(img_train, use_column_width=True)
+        st.image(img_train, width='stretch')
     else:
         # Try to render from CSVs directly
         log_p1 = out('log_p1.csv')
@@ -635,26 +635,26 @@ with tab_perf:
             buf = io.BytesIO()
             fig.savefig(buf, format='png', bbox_inches='tight', facecolor='#05080f', dpi=120)
             buf.seek(0)
-            st.image(buf.read(), use_column_width=True)
+            st.image(buf.read(), width='stretch')
             plt.close(fig)
 
     # ── ROC curves ────────────────────────────────────────────────
     img_roc = load_png('roc_curves_balanced.png')
     if img_roc:
         st.markdown("**ROC Curves (Balanced Test Set)**")
-        st.image(img_roc, use_column_width=True)
+        st.image(img_roc, width='stretch')
 
     # ── AUC bar chart ─────────────────────────────────────────────
     img_bar = load_png('auc_bar_chart_balanced.png')
     if img_bar:
         st.markdown("**AUC Bar Chart**")
-        st.image(img_bar, use_column_width=True)
+        st.image(img_bar, width='stretch')
 
     # ── Confusion matrices ────────────────────────────────────────
     img_cm = load_png('confusion_matrices_balanced.png')
     if img_cm:
         st.markdown("**Confusion Matrices (Balanced Test Set)**")
-        st.image(img_cm, use_column_width=True)
+        st.image(img_cm, width='stretch')
 
     # ── Thresholds ────────────────────────────────────────────────
     if thr:
@@ -664,7 +664,7 @@ with tab_perf:
             {'Class': c, 'Disease': DISEASE_FULL.get(c, c), 'Threshold': round(float(v), 4)}
             for c, v in thr.items()
         ])
-        st.dataframe(thr_df, use_container_width=True, hide_index=True)
+        st.dataframe(thr_df, width='stretch', hide_index=True)
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -703,7 +703,7 @@ with tab_data:
             src_counts.columns = ['Source', 'Count']
             src_counts['Pct'] = (src_counts['Count'] / total * 100).round(1)
             st.markdown("**Source Breakdown**")
-            st.dataframe(src_counts, use_container_width=True, hide_index=True)
+            st.dataframe(src_counts, width='stretch', hide_index=True)
 
         # Class distribution — detect disease columns (single-char uppercase)
         disease_cols = [c for c in manifest.columns if c in list('NDGCAHMO')]
@@ -715,7 +715,7 @@ with tab_data:
                 'Count':   [int(manifest[c].sum()) for c in disease_cols],
                 'Prevalence %': [(manifest[c].sum() / total * 100).round(2) for c in disease_cols],
             }).sort_values('Count', ascending=False)
-            st.dataframe(class_dist, use_container_width=True, hide_index=True)
+            st.dataframe(class_dist, width='stretch', hide_index=True)
 
         # Split sizes
         train_i = out('train_indices.npy')
@@ -731,10 +731,10 @@ with tab_data:
                 'Samples': [n_tr, n_v, n_te],
                 'Pct':     [f"{n_tr/total*100:.1f}%", f"{n_v/total*100:.1f}%", f"{n_te/total*100:.1f}%"],
             })
-            st.dataframe(split_df, use_container_width=True, hide_index=True)
+            st.dataframe(split_df, width='stretch', hide_index=True)
 
         with st.expander("Browse manifest (first 200 rows)"):
-            st.dataframe(manifest.head(200), use_container_width=True)
+            st.dataframe(manifest.head(200), width='stretch')
     else:
         st.info("dataset_manifest.csv not found in outputs/. Run the notebook first.")
 
@@ -788,7 +788,7 @@ with tab_about:
     import pandas as pd
     adf = pd.DataFrame(artifacts, columns=['File', 'Description'])
     adf['Present'] = adf['File'].apply(lambda f: '✓' if out(f) else '✗')
-    st.dataframe(adf, use_container_width=True, hide_index=True)
+    st.dataframe(adf, width='stretch', hide_index=True)
 
 
 # ── Footer ────────────────────────────────────────────────────────
