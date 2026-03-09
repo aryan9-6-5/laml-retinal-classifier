@@ -1,6 +1,5 @@
 venv/
 pdfs/
-*.keras
 *.h5
 *.npy
 Testing_Images/
