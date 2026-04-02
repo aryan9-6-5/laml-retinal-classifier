@@ -420,15 +420,15 @@ with tab_infer:
             import tensorflow as tf
 
             inp    = img_np[np.newaxis].astype(np.float32)
-            out_d  = model(inp, training=False)
+            out_d  = model.predict(inp, verbose=0)
 
             # Handle both dict output and plain tensor output
             if isinstance(out_d, dict):
-                probs = out_d['disease'].numpy()[0]
+                probs = out_d['disease'][0]
             elif isinstance(out_d, (list, tuple)):
-                probs = out_d[0].numpy()[0]
+                probs = out_d[0][0]
             else:
-                probs = out_d.numpy()[0]
+                probs = out_d[0]
 
             thr_a  = np.array([thr.get(c, 0.5) for c in DISEASE_NAMES])
             binary = (probs >= thr_a).astype(int)
@@ -450,10 +450,10 @@ with tab_infer:
                     prob = probs[i]
                     pred = binary[i]
                     bar_pct = int(prob * 100)
-                    bar_col = '#4fc3f7' if pred else '#0e1828'
+                    bar_col = "#ffffff" if pred else '#0e1828'
                     tick    = '✓' if pred else ''
                     active_col = '#d4dbe8' if pred else '#2a3a55'
-                    prob_col   = '#4fc3f7' if pred else '#2a3a55'
+                    prob_col   = "#ffffff" if pred else '#2a3a55'
                     fw = '600' if pred else '400'
                     st.markdown(f"""
                     <div style="margin-bottom:0.5rem;">
