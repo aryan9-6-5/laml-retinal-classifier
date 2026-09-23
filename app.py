@@ -1,3 +1,17 @@
+"""
+LAML Retinal Classifier — Interactive Web Application
+======================================================
+Multi-label retinal disease classification system trained on fundus photographs
+using ConvNeXtTiny, Squeeze-and-Excitation channel attention, dual-head
+auxiliary lesion supervision, and per-class F1-optimal decision thresholds.
+
+Features:
+- Real-time multi-label inference (8 ODIR disease classes)
+- Visual explainability via Grad-CAM attention heatmaps
+- Evaluation metrics, ROC curves, and confusion matrices
+- Dataset explorer and metadata distribution inspection
+"""
+
 import streamlit as st
 import numpy as np
 import cv2
@@ -221,7 +235,15 @@ import os
 OUTPUTS_DIR = 'LAML_outputs'
 
 def out(fname):
-    """Return path inside outputs/ dir, also checks current dir as fallback."""
+    """
+    Resolve file paths within the primary outputs directory or root workspace.
+
+    Args:
+        fname (str): Base filename to look up (e.g., 'LAML_final.keras').
+
+    Returns:
+        str or None: Absolute/relative path to existing file, or None if not found.
+    """
     p1 = os.path.join(OUTPUTS_DIR, fname)
     if os.path.exists(p1):
         return p1
@@ -234,8 +256,19 @@ def out(fname):
 @st.cache_resource
 def load_model_and_config():
     """
-    Load LAML_final.keras, config.json, and thresholds.json from outputs/.
-    Returns (model, config_dict, thresholds_dict, error_str_or_None).
+    Load trained Keras model, model configuration, and optimal decision thresholds.
+
+    Searches `LAML_outputs/` (or repository root) for:
+    - `LAML_final.keras`: Full trained model with dual heads ('disease' and 'lesion')
+    - `config.json`: Vocabulary, input dimensions, and hyperparameters
+    - `thresholds.json`: Per-class F1-optimal classification thresholds
+
+    Returns:
+        tuple: (model, config_dict, thresholds_dict, error_str_or_None)
+            - model (tf.keras.Model or None): Compiled or uncompiled Keras model.
+            - config_dict (dict): Dictionary parsed from config.json.
+            - thresholds_dict (dict): Mapping of disease code -> float threshold.
+            - error_str_or_None (str or None): Error message if loading failed.
     """
     try:
         import tensorflow as tf
@@ -281,6 +314,24 @@ def load_model_and_config():
 
 # ── Image helpers ─────────────────────────────────────────────────
 def preprocess(image_bytes, size=512):
+    """
+    Standardize, enhance, and resize raw fundus photograph bytes for model inference.
+
+    Steps:
+    1. Decode raw bytes to BGR image array.
+    2. Convert BGR to YUV space to isolate the luminance (Y) channel.
+    3. Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) on luminance
+       (clipLimit=0.5, tileGridSize=(15, 15)) to emphasize fine vascular/lesion details.
+    4. Convert back to BGR and resize to (size, size) using Lanczos4 interpolation.
+    5. Convert to RGB and scale pixel values to [0.0, 1.0] as float32.
+
+    Args:
+        image_bytes (bytes): Binary content of an uploaded image file (JPEG, PNG).
+        size (int, optional): Output square dimension in pixels. Defaults to 512.
+
+    Returns:
+        np.ndarray or None: Preprocessed image of shape (size, size, 3), or None if decoding fails.
+    """
     arr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
     if img is None:
@@ -295,6 +346,22 @@ def preprocess(image_bytes, size=512):
 
 
 def gradcam(model, img_arr, class_idx):
+    """
+    Compute Gradient-weighted Class Activation Mapping (Grad-CAM) for a given class.
+
+    Identifies the final 4-dimensional convolutional feature map of the backbone,
+    computes the gradient of the target class score with respect to these activations
+    using tf.GradientTape, pools the gradients across spatial dimensions, and computes
+    a weighted combination followed by ReLU activation.
+
+    Args:
+        model (tf.keras.Model): Multi-output LAML model with 'disease' output key.
+        img_arr (np.ndarray): Preprocessed image array of shape (H, W, 3).
+        class_idx (int): Integer index of the target disease class (0..7).
+
+    Returns:
+        np.ndarray or None: 2D normalized heatmap in [0.0, 1.0], or None on error.
+    """
     try:
         import tensorflow as tf
         last_conv = next(
@@ -325,6 +392,17 @@ def gradcam(model, img_arr, class_idx):
 
 
 def overlay_heatmap(img_np, heatmap, alpha=0.42):
+    """
+    Colorize a 2D Grad-CAM heatmap and blend it onto the original fundus image.
+
+    Args:
+        img_np (np.ndarray): Original preprocessed RGB image array (values in [0.0, 1.0]).
+        heatmap (np.ndarray): 2D normalized activation heatmap.
+        alpha (float, optional): Heatmap blend transparency weight. Defaults to 0.42.
+
+    Returns:
+        np.ndarray: Blended uint8 image array suitable for display.
+    """
     img_u8  = (img_np * 255).astype(np.uint8)
     h       = cv2.resize(heatmap, (img_u8.shape[1], img_u8.shape[0]))
     colored = np.uint8(255 * mpl_cm.jet(h)[:, :, :3])
@@ -333,7 +411,15 @@ def overlay_heatmap(img_np, heatmap, alpha=0.42):
 
 
 def load_png(fname):
-    """Return PIL image or None."""
+    """
+    Load a PNG image from outputs directory or root workspace.
+
+    Args:
+        fname (str): Filename to load (e.g., 'ROC_curves.png').
+
+    Returns:
+        PIL.Image.Image or None: Loaded PIL Image, or None if file does not exist.
+    """
     p = out(fname)
     if p:
         return Image.open(p)
